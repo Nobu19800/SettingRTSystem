@@ -1,0 +1,25 @@
+2015-05-26 15:44:12,102 manager INFO 1.1.0
+2015-05-26 15:44:12,102 manager INFO Copyright (C) 2003-2010
+2015-05-26 15:44:12,102 manager INFO   Noriaki Ando
+2015-05-26 15:44:12,102 manager INFO   Intelligent Systems Research Institute, AIST
+2015-05-26 15:44:12,102 manager INFO Manager starting.
+2015-05-26 15:44:12,102 manager INFO Starting local logging.
+2015-05-26 15:44:12,109 manager.namingmanager INFO NameServer connection succeeded: corba/localhost
+2015-05-26 15:44:14,118 ManagerServant INFO Master manager not found
+2015-05-26 15:44:14,121 manager WARNING Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\OpenRTM_aist\Manager.py", line 1900, in initManagerServant
+    reffile = file(self._config.getProperty("manager.refstring_path"),'w')
+IOError: [Errno 2] No such file or directory: '/var/log/rtcmanager.ref'
+
+2015-05-26 15:44:14,122 LocalServiceAdmin INFO All the local services are enabled.
+2015-05-26 15:44:14,134 manager INFO Component type conf file: rtcConfSet.conf loaded.
+2015-05-26 15:44:14,140 ec_base INFO setRate(1000000.000000) done
+2015-05-26 15:44:14,141 ec_base INFO setRate(1000.000000) done
+2015-05-26 15:44:14,141 rtobject INFO 1 execution context was created.
+2015-05-26 15:44:14,150 rtobject INFO Initial active configuration set is default-set.
+2015-05-26 15:44:47,088 rtcControl_cpp ERROR interface matched with old descriptor: port.rtcControl::RTCDataInterface.rtcControl_cpp
+2015-05-26 15:44:57,845 rtcControl_py ERROR interface matched with old descriptor: port.rtcControl::RTCDataInterface.rtcControl_py
+2015-05-26 15:45:16,171 SdoServiceAdmin WARNING No available SDO service in the factory: 
+2015-05-26 15:45:16,173 SdoServiceAdmin ERROR type  already exists.
+2015-05-26 15:45:16,174 SdoServiceAdmin WARNING No available SDO service in the factory: IDL:OpenRTM/ComponentObserver:1.0
+2015-05-26 15:45:16,174 SdoServiceAdmin ERROR type cfab30c3-6b93-45af-9703-c46ee210883d already exists.
