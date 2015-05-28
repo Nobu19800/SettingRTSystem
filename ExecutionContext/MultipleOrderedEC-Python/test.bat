@@ -1,2 +1,0 @@
-python MultipleOrderedEC.py
-pause
