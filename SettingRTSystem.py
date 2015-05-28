@@ -10,7 +10,7 @@
 import thread
 
 
-import optparse
+
 import sys,os,platform
 import re
 import time
@@ -19,7 +19,7 @@ import commands
 import math
 import imp
 
-
+import subprocess
 
 import rtctree.tree
 
@@ -48,6 +48,16 @@ def main():
     #mgrc = ManagerControl("")
     
     
+    if os.name == 'posix':
+        process_rtcd = subprocess.Popen("python Manager/Python/rtcd.py -f Manager/Python/rtc.conf".split(" "), stdout=subprocess.PIPE)
+        process_confset = subprocess.Popen("sh rtcConfSet.sh".split(" "), stdout=subprocess.PIPE)
+        #process_confset = os.system("sh rtcConfSet.sh&")
+    elif os.name == 'nt':
+        process_rtcd = subprocess.Popen("python Manager/Python/rtcd.py -f Manager/Python/rtc.conf", stdout=subprocess.PIPE)
+        process_confset = subprocess.Popen("rtcConfSet.bat", stdout=subprocess.PIPE)
+        #process_confset = os.system("start rtcConfSet.bat")
+
+            
     app = QtGui.QApplication([""])
     mainWin = SettingRTCWindow.MainWindow.MainWindow()
     mainWin.show()

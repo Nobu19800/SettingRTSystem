@@ -46,6 +46,18 @@ _0_RTCConfData._tc_confDataSeq = omniORB.tcInternal.createTypeCode(_0_RTCConfDat
 omniORB.registerType(confDataSeq._NP_RepositoryId, _0_RTCConfData._ad_confDataSeq, _0_RTCConfData._tc_confDataSeq)
 del confDataSeq
 
+# typedef ... stringSeq
+class stringSeq:
+    _NP_RepositoryId = "IDL:RTCConfData/stringSeq:1.0"
+    def __init__(self, *args, **kw):
+        raise RuntimeError("Cannot construct objects of this type.")
+_0_RTCConfData.stringSeq = stringSeq
+_0_RTCConfData._d_stringSeq  = (omniORB.tcInternal.tv_sequence, (omniORB.tcInternal.tv_string,0), 0)
+_0_RTCConfData._ad_stringSeq = (omniORB.tcInternal.tv_alias, stringSeq._NP_RepositoryId, "stringSeq", (omniORB.tcInternal.tv_sequence, (omniORB.tcInternal.tv_string,0), 0))
+_0_RTCConfData._tc_stringSeq = omniORB.tcInternal.createTypeCode(_0_RTCConfData._ad_stringSeq)
+omniORB.registerType(stringSeq._NP_RepositoryId, _0_RTCConfData._ad_stringSeq, _0_RTCConfData._tc_stringSeq)
+del stringSeq
+
 # interface ConfDataInterface
 _0_RTCConfData._d_ConfDataInterface = (omniORB.tcInternal.tv_objref, "IDL:RTCConfData/ConfDataInterface:1.0", "ConfDataInterface")
 omniORB.typeMapping["IDL:RTCConfData/ConfDataInterface:1.0"] = _0_RTCConfData._d_ConfDataInterface
@@ -84,6 +96,8 @@ ConfDataInterface._d_exitRTCD_Cpp = ((), (omniORB.tcInternal.tv_boolean, ), None
 ConfDataInterface._d_exitRTCD_Py = ((), (omniORB.tcInternal.tv_boolean, ), None)
 ConfDataInterface._d_getRelPath = (((omniORB.tcInternal.tv_string,0), ), ((omniORB.tcInternal.tv_string,0), ), None)
 ConfDataInterface._d_setSystem = ((), (omniORB.tcInternal.tv_boolean, ), None)
+ConfDataInterface._d_setExRTCList = ((omniORB.typeMapping["IDL:RTCConfData/stringSeq:1.0"], ), (omniORB.tcInternal.tv_boolean, ), None)
+ConfDataInterface._d_getExRTCList = ((), (omniORB.tcInternal.tv_boolean, omniORB.typeMapping["IDL:RTCConfData/stringSeq:1.0"]), None)
 
 # ConfDataInterface object reference
 class _objref_ConfDataInterface (CORBA.Object):
@@ -152,7 +166,13 @@ class _objref_ConfDataInterface (CORBA.Object):
     def setSystem(self, *args):
         return _omnipy.invoke(self, "setSystem", _0_RTCConfData.ConfDataInterface._d_setSystem, args)
 
-    __methods__ = ["open", "save", "setConfData_Cpp", "setConfData_Py", "setData_Cpp", "getData_Cpp", "setDataSeq_Cpp", "getDataSeq_Cpp", "setData_Py", "getData_Py", "setDataSeq_Py", "getDataSeq_Py", "addModule_Cpp", "addModule_Py", "startRTCD_Cpp", "startRTCD_Py", "exitRTCD_Cpp", "exitRTCD_Py", "getRelPath", "setSystem"] + CORBA.Object.__methods__
+    def setExRTCList(self, *args):
+        return _omnipy.invoke(self, "setExRTCList", _0_RTCConfData.ConfDataInterface._d_setExRTCList, args)
+
+    def getExRTCList(self, *args):
+        return _omnipy.invoke(self, "getExRTCList", _0_RTCConfData.ConfDataInterface._d_getExRTCList, args)
+
+    __methods__ = ["open", "save", "setConfData_Cpp", "setConfData_Py", "setData_Cpp", "getData_Cpp", "setDataSeq_Cpp", "getDataSeq_Cpp", "setData_Py", "getData_Py", "setDataSeq_Py", "getDataSeq_Py", "addModule_Cpp", "addModule_Py", "startRTCD_Cpp", "startRTCD_Py", "exitRTCD_Cpp", "exitRTCD_Py", "getRelPath", "setSystem", "setExRTCList", "getExRTCList"] + CORBA.Object.__methods__
 
 omniORB.registerObjref(ConfDataInterface._NP_RepositoryId, _objref_ConfDataInterface)
 _0_RTCConfData._objref_ConfDataInterface = _objref_ConfDataInterface
@@ -164,7 +184,7 @@ class ConfDataInterface (PortableServer.Servant):
     _NP_RepositoryId = _0_RTCConfData.ConfDataInterface._NP_RepositoryId
 
 
-    _omni_op_d = {"open": _0_RTCConfData.ConfDataInterface._d_open, "save": _0_RTCConfData.ConfDataInterface._d_save, "setConfData_Cpp": _0_RTCConfData.ConfDataInterface._d_setConfData_Cpp, "setConfData_Py": _0_RTCConfData.ConfDataInterface._d_setConfData_Py, "setData_Cpp": _0_RTCConfData.ConfDataInterface._d_setData_Cpp, "getData_Cpp": _0_RTCConfData.ConfDataInterface._d_getData_Cpp, "setDataSeq_Cpp": _0_RTCConfData.ConfDataInterface._d_setDataSeq_Cpp, "getDataSeq_Cpp": _0_RTCConfData.ConfDataInterface._d_getDataSeq_Cpp, "setData_Py": _0_RTCConfData.ConfDataInterface._d_setData_Py, "getData_Py": _0_RTCConfData.ConfDataInterface._d_getData_Py, "setDataSeq_Py": _0_RTCConfData.ConfDataInterface._d_setDataSeq_Py, "getDataSeq_Py": _0_RTCConfData.ConfDataInterface._d_getDataSeq_Py, "addModule_Cpp": _0_RTCConfData.ConfDataInterface._d_addModule_Cpp, "addModule_Py": _0_RTCConfData.ConfDataInterface._d_addModule_Py, "startRTCD_Cpp": _0_RTCConfData.ConfDataInterface._d_startRTCD_Cpp, "startRTCD_Py": _0_RTCConfData.ConfDataInterface._d_startRTCD_Py, "exitRTCD_Cpp": _0_RTCConfData.ConfDataInterface._d_exitRTCD_Cpp, "exitRTCD_Py": _0_RTCConfData.ConfDataInterface._d_exitRTCD_Py, "getRelPath": _0_RTCConfData.ConfDataInterface._d_getRelPath, "setSystem": _0_RTCConfData.ConfDataInterface._d_setSystem}
+    _omni_op_d = {"open": _0_RTCConfData.ConfDataInterface._d_open, "save": _0_RTCConfData.ConfDataInterface._d_save, "setConfData_Cpp": _0_RTCConfData.ConfDataInterface._d_setConfData_Cpp, "setConfData_Py": _0_RTCConfData.ConfDataInterface._d_setConfData_Py, "setData_Cpp": _0_RTCConfData.ConfDataInterface._d_setData_Cpp, "getData_Cpp": _0_RTCConfData.ConfDataInterface._d_getData_Cpp, "setDataSeq_Cpp": _0_RTCConfData.ConfDataInterface._d_setDataSeq_Cpp, "getDataSeq_Cpp": _0_RTCConfData.ConfDataInterface._d_getDataSeq_Cpp, "setData_Py": _0_RTCConfData.ConfDataInterface._d_setData_Py, "getData_Py": _0_RTCConfData.ConfDataInterface._d_getData_Py, "setDataSeq_Py": _0_RTCConfData.ConfDataInterface._d_setDataSeq_Py, "getDataSeq_Py": _0_RTCConfData.ConfDataInterface._d_getDataSeq_Py, "addModule_Cpp": _0_RTCConfData.ConfDataInterface._d_addModule_Cpp, "addModule_Py": _0_RTCConfData.ConfDataInterface._d_addModule_Py, "startRTCD_Cpp": _0_RTCConfData.ConfDataInterface._d_startRTCD_Cpp, "startRTCD_Py": _0_RTCConfData.ConfDataInterface._d_startRTCD_Py, "exitRTCD_Cpp": _0_RTCConfData.ConfDataInterface._d_exitRTCD_Cpp, "exitRTCD_Py": _0_RTCConfData.ConfDataInterface._d_exitRTCD_Py, "getRelPath": _0_RTCConfData.ConfDataInterface._d_getRelPath, "setSystem": _0_RTCConfData.ConfDataInterface._d_setSystem, "setExRTCList": _0_RTCConfData.ConfDataInterface._d_setExRTCList, "getExRTCList": _0_RTCConfData.ConfDataInterface._d_getExRTCList}
 
 ConfDataInterface._omni_skeleton = ConfDataInterface
 _0_RTCConfData__POA.ConfDataInterface = ConfDataInterface

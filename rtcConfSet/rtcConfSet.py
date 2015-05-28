@@ -14,6 +14,9 @@
 import os.path
 import sys, traceback
 import time
+import struct
+import subprocess
+
 sys.path.append(".")
 sys.path.append("../")
 
@@ -69,6 +72,30 @@ def connectServicePort(obj1, obj2, c_name):
 
     ret = obj2.connect(conprof)
 
+##
+#バイナリファイルより文字読み込みする関数
+##
+def ReadString(ifs):
+    s = struct.unpack("i",ifs.read(4))[0]
+    a = ifs.read(s)
+
+    return a
+
+##
+#バイナリファイルに文字保存する関数
+##
+def WriteString(a, ofs):
+    
+    a2 = a + "\0"
+    s = len(a2)
+    
+    d = struct.pack("i", s)
+    ofs.write(d)
+    
+    ofs.write(a2)
+
+
+
 
 class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
     """
@@ -90,16 +117,34 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         self.rtcdCppFlag = False
         self.rtcdPyFlag = False
 
+        self.filename = ""
+
+        self.exRTCList = []
+
         
 
     def open(self, filename):
         self.filepath = filename
+        #sys.stdout.write(filename)
         #print filename
 
         dirname = self.setFolder(filename)
 
+        self.exRTCList = []
         
-           
+        fileName = dirname[0]+"/"+dirname[1]
+        #print fileName
+        if os.path.exists(fileName):
+            f = open(fileName, 'rb')
+            m = struct.unpack("i",f.read(4))[0]
+            
+            for i in range(0,m):
+                comp = ReadString(f).replace("\0","")
+                self.exRTCList.append(comp)
+            
+            f.close()
+
+
         self.setConfData_Cpp(dirname[2]+"/rtc.conf")
         self.setConfData_Py(dirname[3]+"/rtc.conf")
 
@@ -142,6 +187,7 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
                 os.mkdir(self.pyDirName)
 
         #print dname+"/"+fname
+        self.filename = fname
         self.home_dirname = dname
         return (dname, fname, self.cppDirName, self.pyDirName)
 
@@ -238,13 +284,13 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
                 f.write(rtsp.save_to_yaml())
             f.close()
 
-    def getConnectRTCs(self, comp, list):
-        for l in list:
+    def getConnectRTCs(self, comp, clist):
+        for l in clist:
             if comp.instance_name == l.instance_name:
                     return
         
         
-        list.append(comp)
+        clist.append(comp)
         for p in comp.connected_ports:
             for c in p.connections:
                 for cp in c.ports:
@@ -255,13 +301,13 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
                         
                         
                         flag = True
-                        for l in list:
+                        for l in clist:
                             if cn_comp.instance_name == l.instance_name:
                                 flag = False
                                 
                         if flag:
-                            self.getConnectRTCs(cn_comp,list)
-                            #list.append(cn_comp)
+                            self.getConnectRTCs(cn_comp,clist)
+                            #clist.append(cn_comp)
 
     def getDirName(self, path):
         ans = ""
@@ -269,18 +315,20 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         for i in range(0,len(nlist)-1):
             ans += nlist[i] + "/"
 
+
+
         return ans
         
         
     def getMembersName(self, comp):
-        list = []
+        nlist = []
         for k,v in comp.members.items():
             for c in v:
                 props = c.get_component_profile().properties
                 for p in props:
                     if p.name == "naming.names":
-                        list.append(p.value.value())
-        return list
+                        nlist.append(p.value.value())
+        return nlist
                         
     def judgeLanguage(self, comp):
         for k,v in comp.members.items():
@@ -293,11 +341,11 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         return "Python"
     
     def judgeLanguageComps(self, comps):
-        list = {"C++":[],"Python":[]}
+        nlist = {"C++":[],"Python":[]}
         for comp in comps:
             lang = self.judgeLanguage(comp)
-            list[lang].append(comp)
-        return list
+            nlist[lang].append(comp)
+        return nlist
             
     def save(self, filename):
 
@@ -317,9 +365,16 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         
 
         dirname = self.setFolder(filename)
-           
         
-        f = open(dirname[0]+"/"+dirname[1], "w")
+        
+        f = open(dirname[0]+"/"+dirname[1], "wb")
+        r = len(self.exRTCList)
+        d = struct.pack("i", r)
+        f.write(d)
+
+        for cn in self.exRTCList:
+            WriteString(cn , f )
+
         f.close()
 
         
@@ -382,15 +437,39 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         f.close()
         
         sysFileName = dirname[0]+"/"+dirname[1].split(".")[0]+".rtsys"
+
+        
+        
+        for e in self.exRTCList:
+            nlist = e.split("/")
+            
+            del nlist[0]
+            del nlist[0]
+            path = ['/', 'localhost']
+            path.extend(nlist)
+            
+            comp = self.tree.get_node(path)
+            if comp:
+                self.getConnectRTCs(comp,components)
+        
+
+        tmpList = compositeRTCList["C++"][:]
+        tmpList.extend(compositeRTCList["Python"][:])
+        for c in components:
+            for t in tmpList:
+                if c.name == t.name:
+                    components.remove(c)
+            
+
         self.freeze_dry(sysFileName,True,"","Me","RTSystem",0,components)
 
-        list = components[:]
-        list.extend(compositeRTCList["C++"])
-        list.extend(compositeRTCList["Python"])
+        clist = components[:]
+        clist.extend(compositeRTCList["C++"])
+        clist.extend(compositeRTCList["Python"])
         
-        self.saveActiveFile(dirname[0],list)
-        self.saveDeactiveFile(dirname[0],list)
-        self.saveExitFile(dirname[0],list)
+        self.saveActiveFile(dirname[0],clist)
+        self.saveDeactiveFile(dirname[0],clist)
+        self.saveExitFile(dirname[0],clist)
 
         #dirname_home = os.path.relpath(dirname[0]).replace("\\","/")
         dirname_cpp = os.path.relpath(dirname[2]).replace("\\","/")
@@ -399,16 +478,20 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         
         sysFileName = os.path.relpath(sysFileName,dirname[0])
 
-        list = []
+        clist = []
+
+        #print components
         
         if cpp_path != None and py_path != None:
-        
+            
             for c in compositeRTCList["C++"]:
-                list.append({"path":cpp_path,"comp":c})
+                clist.append({"path":cpp_path,"comp":c})
 
             for c in compositeRTCList["Python"]:
-                list.append({"path":py_path,"comp":c})
+                clist.append({"path":py_path,"comp":c})
 
+            
+            
             for c in components:
                 if c.is_composite:
                     prop = c.properties
@@ -420,24 +503,32 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
                     for n in plist:
                         path += n + "/"
                     
+                    
                     if prop["language"] == "C++":
-                        list.append({"path":path,"comp":c})
+                        clist.append({"path":path,"comp":c})
                     else:
-                        list.append({"path":str(name),"comp":c})
+                        clist.append({"path":path,"comp":c})
+                        #clist.append({"path":str(name),"comp":c})
 
         
+            
         
         
-        
-        self.saveBatFile(dirname[0],dirname_cpp,dirname_py,sysFileName,list)
+            self.saveBatFile(dirname[0],dirname_cpp,dirname_py,sysFileName,clist)
         
         
         
         
         
         return True
-    def saveControlRTCFile(self, home_dirname, components, filename, cmdName):
+    def saveControlRTCFile(self, home_dirname, components, filename, cmdName, allCompFlag=False):
         f = open(home_dirname+"/"+filename, 'w')
+        if len(components) == 0:
+            f.write("rem\n")
+
+        
+                    
+
         for comp in components:
             #print comp.is_composite_member,comp.is_composite,comp.name
             if comp.is_composite_member == False:
@@ -447,6 +538,19 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
                 cmd = "cmd /c " + cmdName + " " + path + "\n"
                 
                 f.write(cmd)
+
+
+        if allCompFlag:
+            for comp in components:
+                if comp.is_composite_member != False:        
+                    prop = comp.properties
+                    name = prop["naming.names"]
+                    path = '/localhost/'+str(name)
+                    cmd = "cmd /c " + cmdName + " " + path + "\n"
+                
+                    f.write(cmd)
+
+
         f.close()
         
     def saveActiveFile(self, home_dirname, components):
@@ -455,38 +559,81 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
     def saveDeactiveFile(self, home_dirname, components):
         self.saveControlRTCFile(home_dirname,components,"deactive.bat","rtdeact")
     def saveExitFile(self, home_dirname, components):
-        self.saveControlRTCFile(home_dirname,components,"exit.bat","rtexit")
+        self.saveControlRTCFile(home_dirname,components,"exit.bat","rtexit",True)
 
     def saveBatFile(self, home_dirname, cpp_dirname, py_dirname, sysfileName, compositeList):
-        f = open(home_dirname+"/start.bat", 'w')
-        path = os.path.relpath("../Manager",home_dirname).replace("/","\\")
+        if os.name == 'posix':
+            f = open(home_dirname+"/start.sh", 'w')
+            f.write("#!/bin/sh\n")
+        elif os.name == 'nt':
+            f = open(home_dirname+"/start.bat", 'w')
+
+        path = os.path.relpath("../workspace",home_dirname)
+        if os.name == 'posix':
+            path = path.replace("\\","/")
+        elif os.name == 'nt':
+            path = path.replace("/","\\")
+            
+           
         cmd = "cd " + path + "\n"
-        f.write(cmd)
-        path = "C++/rtcd_p/Release/rtcd_p.exe".replace("/","\\")
-        cmd = "start " + path + " -f " + cpp_dirname + "/rtc.conf" + "\n"
-        f.write(cmd)
-        path = "Python/rtcd.py".replace("/","\\")
-        cmd = "start python " + path + " -f " + py_dirname + "/rtc.conf" + "\n"
         f.write(cmd)
 
-        path = os.path.relpath(home_dirname,"../Manager").replace("/","\\")
-        cmd = "cd " + path + "\n"
+        if os.name == 'posix':
+            #path = "rtcd".replace("\\","/")
+            cmd = "rtcd" + " -f " + cpp_dirname + "/rtc.conf" + "&\n"
+        elif os.name == 'nt':
+            path = "../Manager/C++/rtcd_p/Release/rtcd_p.exe".replace("/","\\")
+            cmd = "start " + path + " -f " + cpp_dirname + "/rtc.conf" + "\n"
+        f.write(cmd)
+
+        path = "../Manager/Python/rtcd.py"
+        if os.name == 'posix':
+            path = path.replace("\\","/")
+            cmd = "python " + path + " -f " + py_dirname + "/rtc.conf" + "&\n"
+        elif os.name == 'nt':
+            path = path.replace("/","\\")
+            cmd = "start python " + path + " -f " + py_dirname + "/rtc.conf" + "\n"
+        
+        f.write(cmd)
+
+        path = os.path.relpath(home_dirname,"../workspace")
+        if os.name == 'posix':
+            path.replace("\\","/")
+            cmd = "cd " + path + "\n"
+        elif os.name == 'nt':
+            path.replace("/","\\")
+            cmd = "cd " + path + "\n"
         f.write(cmd)
 
         f.write("sleep 5\n")
 
-        f.write("cmd /c composite.bat\n")
+        if os.name == 'posix':
+            f.write("sh composite.sh\n")
+            f.write("sh rtsystem.sh\n")
 
-        f.write("cmd /c rtsystem.bat\n")
-        
+        elif os.name == 'nt':
+            f.write("cmd /c composite.bat\n")
+            f.write("cmd /c rtsystem.bat\n")
 
-        fcomp = open(home_dirname+"/composite.bat", 'w')
+        if os.name == 'posix':
+            fcomp = open(home_dirname+"/composite.sh", 'w')
+            fcomp.write("#!/bin/sh\n")
+        elif os.name == 'nt':
+            fcomp = open(home_dirname+"/composite.bat", 'w')
 
+        if len(compositeList) == 0:
+            if os.name == 'posix':
+                pass
+            elif os.name == 'nt':
+                fcomp.write("rem\n")
         for c in compositeList:
             
             path = '/localhost/'+c["path"]+c["comp"].name
 
-            cmd = "cmd /c rtcomp " + path
+            if os.name == 'posix':
+                cmd = "rtcomp " + path
+            elif os.name == 'nt':
+                cmd = "cmd /c rtcomp " + path
             memComp = self.getMembersName(c["comp"])
 
             for m in memComp:
@@ -499,14 +646,21 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
 
             ports = c["comp"].conf_sets['default'].data['exported_ports']
             if ports != "":
-                cmd = "cmd /c rtconf " + path + " set exported_ports " + ports + "\n"
+                if os.name == 'posix':
+                    cmd = "rtconf " + path + " set exported_ports " + ports + "\n"
+                elif os.name == 'nt':
+                    cmd = "cmd /c rtconf " + path + " set exported_ports " + ports + "\n"
                 fcomp.write(cmd)
 
         fcomp.close()
 
-        frtsystem = open(home_dirname+"/rtsystem.bat", 'w')
-
-        cmd = "cmd /c rtresurrect " + sysfileName + "\n"
+        if os.name == 'posix':
+            frtsystem = open(home_dirname+"/rtsystem.sh", 'w')
+            cmd = "rtresurrect " + sysfileName + "\n"
+        elif os.name == 'nt':
+            frtsystem = open(home_dirname+"/rtsystem.bat", 'w')
+            cmd = "cmd /c rtresurrect " + sysfileName + "\n"
+            
         frtsystem.write(cmd)
 
         frtsystem.close()
@@ -522,6 +676,7 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         else:
             fd = file(filename,"r")
             #print filename
+	#print fd
         prop.load(fd)
         fd.close()
 
@@ -643,7 +798,8 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
 
 
     def getNode(self, node, cl, ml):
-        values = node._children.values()
+        #values = node._children.values()
+        values = node.children
         for v in values:
             if v.is_component:
                 cl.append(v)
@@ -687,9 +843,21 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         self.saveData(f, self.confList_cpp, "", True)
         f.close()
 
-        com = "start ../rtcdControl/src/Release/rtcdControlComp.exe -f " + self.cppDirName.replace("\\","/") + "/rtc.conf"
-        #print com
-        os.system(com)
+        if os.name == 'posix':
+            com = "../rtcdControl/src/rtcdControlComp -f " + self.cppDirName.replace("\\","/") + "/rtc.conf"
+            com = com.split(" ")
+        elif os.name == 'nt':
+            com = "../rtcdControl/src/Release/rtcdControlComp.exe -f " + self.cppDirName.replace("\\","/") + "/rtc.conf"
+        
+        try:
+            #os.system(com)
+            process = subprocess.Popen(com, stdout=subprocess.PIPE)
+        except:
+            info = sys.exc_info()
+            tbinfo = traceback.format_tb( info[2] )
+            for tbi in tbinfo:
+                print tbi
+        #os.system(com)
         
         flag = True
 
@@ -722,9 +890,23 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         f = open(self.pyDirName+"/rtc.conf", 'w')
         self.saveData(f, self.confList_py, "", True)
         f.close()
-        com = "start python ../rtcdControlPy/rtcdControlPy.py -f " + self.pyDirName.replace("\\","/") + "/rtc.conf"
+
+        if os.name == 'posix':
+            com = "python ../rtcdControlPy/rtcdControlPy.py -f " + self.pyDirName.replace("\\","/") + "/rtc.conf"
+            com = com.split(" ")
+        elif os.name == 'nt':
+            com = "python ../rtcdControlPy/rtcdControlPy.py -f " + self.pyDirName.replace("\\","/") + "/rtc.conf"
+        
         #print com
-        os.system(com)
+        
+        try:
+            process = subprocess.Popen(com, stdout=subprocess.PIPE)
+        except:
+            info = sys.exc_info()
+            tbinfo = traceback.format_tb( info[2] )
+            for tbi in tbinfo:
+                print tbi
+        #os.system(com)
         
         flag = True
 
@@ -797,18 +979,57 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         return os.path.relpath(filepath).replace("\\","/")
 
     def setSystem(self):
-        name = self.home_dirname+"/composite.bat"
-        if os.path.exists(name):
-            time.sleep(5)
-            com = "cmd /c " + name + "\n"
-            os.system(com)
+        if os.name == 'posix':
+            name = self.home_dirname+"/composite.sh"
+            com = os.path.relpath(name).replace("\\","/")
+            com = "sh " + com
+            com = com.split(" ")
+        elif os.name == 'nt':
+            name = self.home_dirname+"/composite.bat"
+            com = os.path.relpath(name).replace("/","\\")
             
-        name = self.home_dirname+"/rtsystem.bat"
         if os.path.exists(name):
-            com = "cmd /c " + name + "\n"
-            os.system(com)
+            
+                
+            
+            time.sleep(5)
+            
+            
+            try:
+                process = subprocess.Popen(com, stdout=subprocess.PIPE)
+            except:
+                info = sys.exc_info()
+                tbinfo = traceback.format_tb( info[2] )
+                for tbi in tbinfo:
+                    print tbi
+            #os.system(com)
+            
+        #name = self.home_dirname+"/rtsystem.bat"
+        name = self.home_dirname + "/" + self.filename.split(".")[0]+".rtsys"
+        if os.path.exists(name):
+            if os.name == 'posix':
+                com = "rtresurrect " + os.path.relpath(name).replace("\\","/")
+                com = com.split(" ")
+            elif os.name == 'nt':
+                com = "cmd /c rtresurrect " + os.path.relpath(name).replace("\\","/")
+            
+            try:
+                process = subprocess.Popen(com, stdout=subprocess.PIPE)
+            except:
+                info = sys.exc_info()
+                tbinfo = traceback.format_tb( info[2] )
+                for tbi in tbinfo:
+                    print tbi
+            #os.system(com)
         
         return True
+
+    def setExRTCList(self, name):
+        self.exRTCList = name[:]
+        #print self.exRTCList
+        return True
+    def getExRTCList(self):
+        return (True,self.exRTCList)
         
 
 # </rtc-template>
@@ -987,6 +1208,13 @@ class rtcConfSet(OpenRTM_aist.DataFlowComponentBase):
 		#
 		#
 	def onExecute(self, ec_id):
+
+        	
+        
+        
+        
+        # *** Implement me
+        # Must return: result, data
         #self._rtcconf.save("")
         #print self._rtcControl_py._ptr().getRTC()
 		return RTC.RTC_OK

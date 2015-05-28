@@ -46,7 +46,7 @@ from TimerWidget import TimerWidget
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        
+        self.setWindowTitle(u"RTC設定ファイル作成ツール")
 
         self.tab_widget = QtGui.QTabWidget(self)
         self.setCentralWidget(self.tab_widget)
@@ -190,21 +190,21 @@ class MainWindow(QtGui.QMainWindow):
             
 
             
-            inv_dname = os.path.relpath(os.path.abspath(".\\"), dname)
-            s = "cd " + inv_dname + "\n"
-            s += "rtcd_python -f " + ".\\" + os.path.relpath(ba)
+        inv_dname = os.path.relpath(os.path.abspath(".\\"), dname)
+        s = "cd " + inv_dname + "\n"
+        s += "rtcd_python -f " + ".\\" + os.path.relpath(ba)
 
-            if dname == "":
-                path = ".\\"+name+".bat"
-            else:
-                path = dname+"\\"+name+".bat"
-            pf = open(path, "w")
-            pf.write(s)
-            pf.close()
+        if dname == "":
+            path = ".\\"+name+".bat"
+        else:
+            path = dname+"\\"+name+".bat"
+        pf = open(path, "w")
+        pf.write(s)
+        pf.close()
 
 
             
-            for c in self.mgrc.mgr.getComponents():
+        for c in self.mgrc.mgr.getComponents():
                 
                 if dname == "":
                     path = "./"+c.get_sdo_id() + ".conf"

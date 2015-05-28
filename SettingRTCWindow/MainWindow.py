@@ -73,6 +73,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
+	self.setWindowTitle(u"複合コンポーネント作成支援ツール")
         self.tree = None
         
         self.mgr = OpenRTM_aist.Manager.init(sys.argv)
@@ -197,6 +198,12 @@ class MainWindow(QtGui.QMainWindow):
         while flag:
             try:
                 self.control_comp._rtcconf._ptr().open(filapath)
+                wid = self.rtcd_widget.WidList["rtcList"]["Widget"]
+                clist = self.control_comp._rtcconf._ptr().getExRTCList()[1]
+                wid.clear()
+                for c in clist:
+                    wid.addItem(c)
+                
                 flag = False
             except:
                 info = sys.exc_info()
@@ -207,8 +214,8 @@ class MainWindow(QtGui.QMainWindow):
         self.mgrc_cpp.SetParam()
         self.mgrc_py.SetParam()
         
-        self.tab_widget_cpp = TabWidget(self.mgrc_cpp)
-        self.tab_widget_python = TabWidget(self.mgrc_py)
+        self.tab_widget_cpp = TabWidget(self.mgrc_cpp,"C++")
+        self.tab_widget_python = TabWidget(self.mgrc_py,"Python")
         
         self.tab_widget.addTab(self.tab_widget_cpp, u"CPP")
         self.tab_widget.addTab(self.tab_widget_python, u"Python")
@@ -222,6 +229,10 @@ class MainWindow(QtGui.QMainWindow):
 
             return func
         except:
+            info = sys.exc_info()
+            tbinfo = traceback.format_tb( info[2] )
+            for tbi in tbinfo:
+                print tbi
             return None
 
     def getFilePath(self):
@@ -243,7 +254,7 @@ class MainWindow(QtGui.QMainWindow):
         filepath = self.getFilePath()
         if filepath == "":
             return
-    
+
         self.createTabs(filepath)
 
         
@@ -256,7 +267,10 @@ class MainWindow(QtGui.QMainWindow):
             try:
                 self.control_comp._rtcconf._ptr().setDataSeq_Cpp(cdata)
             except:
-                pass
+                info = sys.exc_info()
+                tbinfo = traceback.format_tb( info[2] )
+                for tbi in tbinfo:
+                    print tbi
 
     def setDataPy(self):
         if self.tab_widget_python !=  None:
@@ -265,7 +279,10 @@ class MainWindow(QtGui.QMainWindow):
             try:
                 self.control_comp._rtcconf._ptr().setDataSeq_Py(cdata)
             except:
-                pass
+                info = sys.exc_info()
+                tbinfo = traceback.format_tb( info[2] )
+                for tbi in tbinfo:
+                    print tbi
     
         
     def saveFile(self, filename):
@@ -273,9 +290,17 @@ class MainWindow(QtGui.QMainWindow):
         self.setDataPy()
         
         try:
+            wid = self.rtcd_widget.WidList["rtcList"]["Widget"]
+            clist = []
+            for c in range(0, wid.count()):
+                clist.append(str(wid.itemText(c).toLocal8Bit()))
+            self.control_comp._rtcconf._ptr().setExRTCList(clist)
             self.control_comp._rtcconf._ptr().save(filename)
         except:
-            pass
+            info = sys.exc_info()
+            tbinfo = traceback.format_tb( info[2] )
+            for tbi in tbinfo:
+                print tbi
 
 
     ##

@@ -13,6 +13,7 @@ module RTCConfData {
 	};
 
 	typedef sequence<confData> confDataSeq;
+	typedef sequence<string> stringSeq;
 
 	interface ConfDataInterface {
 		boolean open(in string filename);
@@ -35,6 +36,8 @@ module RTCConfData {
 		boolean exitRTCD_Py();
 		string getRelPath(in string filepath);
 		boolean setSystem();
+		boolean setExRTCList(in stringSeq name);
+		boolean getExRTCList(out stringSeq name);
 	};
 
 };

@@ -43,9 +43,9 @@ from SettingRTCConf.TimerWidget import TimerWidget
 
 
 class TabWidget(QtGui.QTabWidget):
-    def __init__(self, mgrc, parent=None):
+    def __init__(self, mgrc, language="Python", parent=None):
         super(TabWidget, self).__init__(parent)
-        
+        self.language = language
         self.mgrc = mgrc
         
         
@@ -54,7 +54,7 @@ class TabWidget(QtGui.QTabWidget):
 
     def createTabs(self):
         self.Tabs = []
-        self.ManagerTab = ManagerWidget(self.mgrc)
+        self.ManagerTab = ManagerWidget(self.mgrc,self.language)
         self.addTab(self.ManagerTab, u"マネージャ")
         self.Tabs.append(self.ManagerTab)
         self.CorbaTab = CorbaWidget(self.mgrc)
@@ -72,7 +72,7 @@ class TabWidget(QtGui.QTabWidget):
 	self.TimerTab = TimerWidget(self.mgrc)
 	self.addTab(self.TimerTab, u"タイマ")
 	self.Tabs.append(self.TimerTab)
-	self.ExecCxtTab = ExecCxtWidget(self.mgrc, self.ManagerTab)
+	self.ExecCxtTab = ExecCxtWidget(self.mgrc, self.ManagerTab,self.language)
 	self.addTab(self.ExecCxtTab, u"実行コンテキスト")
 	self.Tabs.append(self.ExecCxtTab)
 

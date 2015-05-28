@@ -38,9 +38,10 @@ from ManagerControl import ManagerControl
 
 class ExecCxtWidget(MTabWidget):
     
-    def __init__(self, mgrc, mgrWidget, parent=None):
+    def __init__(self, mgrc, mgrWidget, language="Python", parent=None):
         MTabWidget.__init__(self, mgrc, parent)
         self.setGUI("exec_cxt")
+        self.language = language
 
         self.loadECButton = QtGui.QPushButton(u"実行コンテキストをファイルから読み込み")
         self.subLayouts[-1].addWidget(self.loadECButton)
@@ -114,7 +115,14 @@ class ExecCxtWidget(MTabWidget):
         
 
     def setOrderFSlot(self):
-        fileName = QtGui.QFileDialog.getOpenFileName(self,u"開く","","Python File (*.py);;Lua File (*.lua);;Configuration File (*.conf);;All Files (*)")
+
+        if self.language == "Python":
+            filepath = pyFilePath + cppFilePath + allFilePath
+            fileName = QtGui.QFileDialog.getOpenFileName(self,u"開く","",filepath)
+        else:
+            filepath = cppFilePath + pyFilePath + allFilePath
+            fileName = QtGui.QFileDialog.getOpenFileName(self,u"開く","",filepath)
+        
         if fileName.isEmpty():
             return
 

@@ -1,0 +1,12 @@
+2015-05-29 01:52:36,825 manager INFO 1.1.0
+2015-05-29 01:52:36,825 manager INFO Copyright (C) 2003-2010
+2015-05-29 01:52:36,825 manager INFO   Noriaki Ando
+2015-05-29 01:52:36,825 manager INFO   Intelligent Systems Research Institute, AIST
+2015-05-29 01:52:36,825 manager INFO Manager starting.
+2015-05-29 01:52:36,825 manager INFO Starting local logging.
+2015-05-29 01:52:36,829 manager.namingmanager INFO NameServer connection succeeded: corba/localhost
+2015-05-29 01:52:36,839 ManagerServant INFO Master manager not found
+2015-05-29 01:52:49,644 SdoServiceAdmin WARNING No available SDO service in the factory: 
+2015-05-29 01:52:49,644 SdoServiceAdmin ERROR type  already exists.
+2015-05-29 01:52:49,646 SdoServiceAdmin WARNING No available SDO service in the factory: IDL:OpenRTM/ComponentObserver:1.0
+2015-05-29 01:52:49,646 SdoServiceAdmin ERROR type 06efb5fe-4aa0-4df0-ba16-6121353aff88 already exists.

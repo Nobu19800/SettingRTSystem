@@ -38,9 +38,10 @@ from ManagerControl import ManagerControl
 
 class ManagerWidget(MTabWidget):
     
-    def __init__(self, mgrc, parent=None):
+    def __init__(self, mgrc, language="Python",  parent=None):
         MTabWidget.__init__(self, mgrc, parent)
         self.setGUI("manager")
+        self.language = language
         #self.addLangButton = QtGui.QPushButton(u"サポートする言語の追加")
         #self.WidList["manager.supported_languages"]["Layout"].addWidget(self.addLangButton)
         #self.addLangButton.clicked.connect(self.addLangSlot)
@@ -72,7 +73,7 @@ class ManagerWidget(MTabWidget):
         
 
     def loadFileRTCSlot(self):
-        wid = self.WidList["filenameBox"]["Widget"]
+        wid = self.WidList["filenameBox.sub"]["Widget"]
         s = str(wid.text().toLocal8Bit())
         if s == "":
             return
@@ -121,10 +122,17 @@ class ManagerWidget(MTabWidget):
     def loadRTC(self, fileName):
         fname = os.path.basename(fileName)
         name, ext = os.path.splitext(fname)
-        dname = [os.path.dirname(fileName)]
+
+	tmp_dname = os.path.dirname(fileName)
+        dname = [tmp_dname]
+
+
         if self.mgrc.createComp(name,dname) == False:
             self.mesBox(u"モジュールの読み込みに失敗しました")
             return
+
+        if tmp_dname == "/usr/local/components/lib":
+            dname = [tmp_dname]
 
         wid = self.WidList["manager.components.precreate"]["Widget"]
         wid.addItem(name)
@@ -142,7 +150,15 @@ class ManagerWidget(MTabWidget):
             wid.addItem(dname[0])
 
     def loadRTCSlot(self):
-        fileName = QtGui.QFileDialog.getOpenFileName(self,u"開く","","Python File (*.py);;Dynamic Link Library (*.dll *.so);;All Files (*)")
+        pyFilePath = "Python File (*.py);;"
+        cppFilePath = "Dynamic Link Library (*.dll *.so);;"
+        allFilePath = "All Files (*)"
+        if self.language == "Python":
+            filepath = pyFilePath + cppFilePath + allFilePath
+            fileName = QtGui.QFileDialog.getOpenFileName(self,u"開く","",filepath)
+        else:
+            filepath = cppFilePath + pyFilePath + allFilePath
+            fileName = QtGui.QFileDialog.getOpenFileName(self,u"開く","",filepath)
 
         if fileName.isEmpty():
             return
