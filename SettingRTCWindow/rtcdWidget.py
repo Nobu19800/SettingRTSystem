@@ -285,12 +285,17 @@ class rtcdWidget(MTabWidget):
                 print tbi
 
     def addLoadSlot(self):
-        self.parent.createTabs(str(self.WidList["filepath"]["Widget"].text().toLocal8Bit()))
+        path = str(self.WidList["filepath"]["Widget"].text().toLocal8Bit())
+        if path != "":
+            self.parent.createTabs(path)
+            self.parent.curFile = path
+        else:
+            self.mesBox(u"ファイル名を入力してください")
 
     def addFilePathSlot(self):
         wid = self.WidList["filepath"]["Widget"]
         text = self.parent.getFilePath()
-        
+        self.WidList["filepath"]["Widget"].setText(text)
             
         
         wid.setText(text)
@@ -299,7 +304,12 @@ class rtcdWidget(MTabWidget):
         self.parent.newFile()
         
     def saveFileSlot(self):
-        pass
+        path = str(self.WidList["filepath"]["Widget"].text().toLocal8Bit())
+        if path != "":
+            self.parent.saveFile(path)
+            self.parent.curFile = path
+        else:
+            self.mesBox(u"ファイル名を入力してください")
 
     def delLangSlot(self):
         wid = self.WidList["manager.supported_languages"]["Widget"]

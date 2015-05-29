@@ -124,7 +124,8 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         
 
     def open(self, filename):
-        self.filepath = filename
+        
+        self.filepath = os.path.abspath(filename)
         #sys.stdout.write(filename)
         #print filename
 
@@ -348,7 +349,7 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         return nlist
             
     def save(self, filename):
-
+        filename = os.path.abspath(filename)
         self.tree = rtctree.tree.RTCTree(servers='localhost', orb=self.comp._manager.getORB())        
 
         compositeList = []
@@ -461,15 +462,13 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
                     components.remove(c)
             
 
-        self.freeze_dry(sysFileName,True,"","Me","RTSystem",0,components)
+        
 
         clist = components[:]
         clist.extend(compositeRTCList["C++"])
         clist.extend(compositeRTCList["Python"])
         
-        self.saveActiveFile(dirname[0],clist)
-        self.saveDeactiveFile(dirname[0],clist)
-        self.saveExitFile(dirname[0],clist)
+        
 
         #dirname_home = os.path.relpath(dirname[0]).replace("\\","/")
         dirname_cpp = os.path.relpath(dirname[2]).replace("\\","/")
@@ -478,11 +477,19 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
         
         sysFileName = os.path.relpath(sysFileName,dirname[0])
 
-        clist = []
+        
 
         #print components
         
         if cpp_path != None and py_path != None:
+            
+            self.freeze_dry(sysFileName,True,"","Me","RTSystem",0,components)
+
+            self.saveActiveFile(dirname[0],clist)
+            self.saveDeactiveFile(dirname[0],clist)
+            self.saveExitFile(dirname[0],clist)
+            
+            clist = []
             
             for c in compositeRTCList["C++"]:
                 clist.append({"path":cpp_path,"comp":c})

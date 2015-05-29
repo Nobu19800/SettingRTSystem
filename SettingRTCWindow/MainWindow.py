@@ -246,6 +246,7 @@ class MainWindow(QtGui.QMainWindow):
             return ""
         ba = str(fileName.toLocal8Bit())
         #ba = ba.replace("/","\\")
+        
 
         return ba
 
