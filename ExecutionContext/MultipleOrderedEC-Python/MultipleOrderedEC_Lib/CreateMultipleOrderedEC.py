@@ -33,7 +33,7 @@ class MultipleOrderedEC(OpenRTM_aist.PeriodicExecutionContext):
         self.prop = OpenRTM_aist.Manager.instance().getConfig()
         #print OpenRTM_aist.Manager.instance().getConfig()
         self.SetGui = "YES"
-        self.FileName = "CompList.conf"
+        self.FileName = ""
         self.SetGui = self.getProperty(self.prop, "exec_cxt.periodic.gui", self.SetGui)
         #print self.SetGui
         self.FileName = self.getProperty(self.prop, "exec_cxt.periodic.filename", self.FileName)
@@ -75,11 +75,6 @@ class MultipleOrderedEC(OpenRTM_aist.PeriodicExecutionContext):
     #
     ##
     def Update_Name(self):
-        self._worker.updateComponentList()
-        
-        #print self._worker._comps
-        #print self._worker._addedComps
-        #print self._worker._removedComps
         if self.comp_t == self._worker._comps:
             pass
         else:
@@ -118,19 +113,14 @@ class MultipleOrderedEC(OpenRTM_aist.PeriodicExecutionContext):
     def workerComp(self, c):
         sd = c.r in self._worker._comps
         if sd == True:
-            c.r.workerPreDo()
-            c.r.workerDo()
-            c.r.workerPostDo()
-            #c.r._sm.worker()
+            
+            c.r._sm.worker()
         else:
             
             for i in range(0, len(self._worker._comps)):
                 if c.v == self.getCompName(i):
                     c.r = self._worker._comps[i]
-                    c.r.workerPreDo()
-                    c.r.workerDo()
-                    c.r.workerPostDo()
-                    #self._worker._comps[i]._sm.worker()
+                    self._worker._comps[i]._sm.worker()
 
     ##
     #設定した実行順序のRTCを格納する関数
@@ -254,10 +244,7 @@ class MultipleOrderedEC(OpenRTM_aist.PeriodicExecutionContext):
 				self.rs[self.r_num].rs[i].SR[0][j].s = 1
 				sd = self.rs[self.r_num].rs[i].SR[0][j].r in self._worker._comps
                                 if sd == True:
-                                    #self.rs[self.r_num].rs[i].SR[0][j].r._sm.worker()
-                                    self.rs[self.r_num].rs[i].SR[0][j].r.workerPreDo()
-                                    self.rs[self.r_num].rs[i].SR[0][j].r.workerDo()
-                                    self.rs[self.r_num].rs[i].SR[0][j].r.workerPostDo()
+                                    self.rs[self.r_num].rs[i].SR[0][j].r._sm.worker()
 				self.rs[self.r_num].rs[i].SR[0][j].s = 0
 
 			else:

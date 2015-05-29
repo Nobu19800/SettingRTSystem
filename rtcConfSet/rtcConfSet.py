@@ -877,6 +877,10 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
 
         connectServicePort(port.object, self.comp._rtcControl_cppPort.getPortRef(), portname)
 
+        f = open(self.cppDirName+"/rtc.conf", 'w')
+        self.saveData(f, self.confList_cpp, "", True)
+        f.close()
+        
         return True
         raise CORBA.NO_IMPLEMENT(0, CORBA.COMPLETED_NO)
         # *** Implement me
@@ -926,11 +930,14 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
 
         connectServicePort(port.object, self.comp._rtcControl_pyPort.getPortRef(), portname)
 
-        
+        f = open(self.pyDirName+"/rtc.conf", 'w')
+        self.saveData(f, self.confList_py, "", True)
+        f.close()
         
         return True
 
     def saveData(self, fd, confList, filepath,  rtcdFlag=True,compositeList=[]):
+        
         for d in confList:
             s = d.id + ": "
 
@@ -952,6 +959,7 @@ class ConfDataInterface_i (RTCConfData__POA.ConfDataInterface):
             
             elif rtcdFlag == False and d.id == "exec_cxt.periodic.filename" and d.data == "":
                 text = os.path.relpath(filepath).replace("\\","/") + "/order.conf"
+                
                 of = open(text, "wb")
                 of.close()
                 s += text

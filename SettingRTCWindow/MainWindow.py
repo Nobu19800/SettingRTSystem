@@ -109,7 +109,7 @@ class MainWindow(QtGui.QMainWindow):
 
 
 	
-	
+	self.curFile = ""
 
 	#self.mgrc.CreateComp("MyFirstComponent",[".\\MyFirstComponent"])
         #self.mgrc.CreateComp("MyFirstComponent",[".\\MyFirstComponent"])
@@ -165,6 +165,10 @@ class MainWindow(QtGui.QMainWindow):
         self.saveAct.setShortcuts(QtGui.QKeySequence.Save)
         self.saveAct.triggered.connect(self.save)
 
+        self.saveAsAct = QtGui.QAction("&Save &As",self)
+        self.saveAsAct.setShortcuts(QtGui.QKeySequence.SaveAs)
+        self.saveAsAct.triggered.connect(self.saveAs)
+
     ##
     #メニューの作成の関数
     ##
@@ -174,6 +178,7 @@ class MainWindow(QtGui.QMainWindow):
 	self.fileMenu.addAction(self.newAct)
         self.fileMenu.addAction(self.openAct)
         self.fileMenu.addAction(self.saveAct)
+        self.fileMenu.addAction(self.saveAsAct)
 
 
     def createTabs(self, filapath):
@@ -256,7 +261,7 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         self.createTabs(filepath)
-
+        self.curFile = filepath
         
         
         
@@ -302,11 +307,17 @@ class MainWindow(QtGui.QMainWindow):
             for tbi in tbinfo:
                 print tbi
 
+    def save(self):
+        if self.curFile == "":
+            return self.saveAs()
+        else:
+            self.saveFile(self.curFile)
+            return True
 
     ##
     #ファイル保存のスロット
     ##
-    def save(self):
+    def saveAs(self):
         
         fileName = QtGui.QFileDialog.getSaveFileName(self,u"保存", "","Config File (*.conf);;All Files (*)")
 	if fileName.isEmpty():
@@ -315,6 +326,8 @@ class MainWindow(QtGui.QMainWindow):
 	ba = str(fileName.toLocal8Bit())
 	
         self.saveFile(ba)
+        self.curFile = ba
+        return True
 	#self.tab_widget_python = None
 
 
@@ -381,6 +394,7 @@ class MainWindow(QtGui.QMainWindow):
     ##
     def newFile(self):
         self.createTabs("rtc.conf")
+        self.curFile = ""
 
 
         
