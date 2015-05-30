@@ -1,8 +1,0 @@
-2015-05-29 01:37:34,109 manager INFO 1.1.0
-2015-05-29 01:37:34,109 manager INFO Copyright (C) 2003-2010
-2015-05-29 01:37:34,109 manager INFO   Noriaki Ando
-2015-05-29 01:37:34,109 manager INFO   Intelligent Systems Research Institute, AIST
-2015-05-29 01:37:34,110 manager INFO Manager starting.
-2015-05-29 01:37:34,110 manager INFO Starting local logging.
-2015-05-29 01:37:34,118 manager.namingmanager INFO NameServer connection succeeded: corba/localhost
-2015-05-29 01:37:34,130 ManagerServant INFO Master manager not found
