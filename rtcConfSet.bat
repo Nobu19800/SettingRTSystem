@@ -1,2 +1,4 @@
+cd /d %~dp0
 cd rtcConfSet
-python rtcConfSet.py
+rem python rtcConfSet.py
+dist\rtcConfSet
