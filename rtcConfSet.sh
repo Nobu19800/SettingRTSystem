@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd rtcConfSet
-python rtcConfSet.py
+cd workspace
+python ../rtcConfSet/rtcConfSet.py
